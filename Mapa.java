@@ -20,7 +20,7 @@ public class Mapa {
     }
 
     private void actualizarCaminos(){
-        int caminosCopia[][] = caminos;
+        int caminosidCaminoActualpia[][] = caminos;
         caminos = new int[lugares.size()][lugares.size()];
 
         for(int i=0; i<lugares.size(); i++){
@@ -29,11 +29,11 @@ public class Mapa {
             }
         }
 
-        if(caminosCopia != null){
+        if(caminosidCaminoActualpia != null){
             for(int i=0; i<lugares.size(); i++){
                 for(int o=0; o<lugares.size(); o++){
                     if(caminos[i][o] != infinito){
-                        caminos[i][o] = caminosCopia[i][o];
+                        caminos[i][o] = caminosidCaminoActualpia[i][o];
                     }
                 }
             }
@@ -42,13 +42,13 @@ public class Mapa {
 
 
 
-    public void crearCamino(String lugarA, String lugarB, int distancia){
+    public void crearCamino(String lugarA, String lugarB, int distancias){
         int idLugarA = buscaridLugar(lugarA);
         int idLugarB = buscaridLugar(lugarB);
 
         if(idLugarA >= 0 && idLugarB >= 0){
-            caminos[idLugarA][idLugarB] = distancia;
-            caminos[idLugarB][idLugarA] = distancia;
+            caminos[idLugarA][idLugarB] = distancias;
+            caminos[idLugarB][idLugarA] = distancias;
         }else{
             System.out.println("No se pudo crear el camino entre "+lugarA+" y "+lugarB+".");
         }
@@ -56,13 +56,13 @@ public class Mapa {
 
 
 
-    public void crearCamino(int idLugarA, int idLugarB, int distancia){
+    public void crearCamino(int idLugarA, int idLugarB, int distancias){
         idLugarA-=1;
         idLugarB-=1;
 
         if(idLugarA >= 0 && idLugarB >= 0 && idLugarA < lugares.size() && idLugarB < lugares.size()){
-            caminos[idLugarA][idLugarB] = distancia;
-            caminos[idLugarB][idLugarA] = distancia;
+            caminos[idLugarA][idLugarB] = distancias;
+            caminos[idLugarB][idLugarA] = distancias;
         }else{
             System.out.println("No se pudo crear el camino entre "+idLugarA+" y "+idLugarB+".");
         }
@@ -91,140 +91,102 @@ public class Mapa {
 
 
 
-    public void ir(String destino){
-        int idDestino = buscaridLugar(destino);
-        int[] ruta = rutaHacia(idDestino);
-
-        for(int i=0; i<ruta.length; i++){
-            System.out.print("["+lugares.get(ruta[i]).getNombre()+"] -> ");
-        }
-
-        System.out.println();
-        System.out.println("Distancia: "+distanciaHacia(idDestino));
-
-        idUbicacionActual = idDestino;
-    }
-
-
-
-    private int[] rutasDesdeUbicacionActual(){
+    public void dijkStra(){
+        List<Integer>[] rutas = new ArrayList[lugares.size()];
         int[] distancias = new int[lugares.size()];
-        int[] rutas = new int[lugares.size()];
+        boolean[] visitados = new boolean[lugares.size()];
 
-        for (int i=0; i<distancias.length; i++) {
+        for(int i=0; i<lugares.size(); i++){
             distancias[i] = infinito;
-            rutas[i] = -1;
+            rutas[i] = new ArrayList<>();
         }
+
+        int idCaminoActual = 0;
+        int idLugarActual = idUbicacionActual;
+
         distancias[idUbicacionActual] = 0;
 
-        boolean[] visitados = new boolean[lugares.size()];
-        PriorityQueue<Integer> pendientes = new PriorityQueue<>();
-        pendientes.offer(idUbicacionActual);
+        while(!visitados[idLugarActual]){
+            idCaminoActual = obtenerCaminoSiguiente(idLugarActual, idCaminoActual-1);
 
-        while(!pendientes.isEmpty()){
-            int idActual = pendientes.poll();
-
-            if(visitados[idActual]){
-                continue;
+            if(idCaminoActual >= 0){
+                while(idCaminoActual >= 0 && visitados[idCaminoActual]){
+                    idCaminoActual = obtenerCaminoSiguiente(idLugarActual, idCaminoActual);
+                }
             }
 
-            visitados[idActual] = true;
+            if(idCaminoActual < 0){
+                visitados[idLugarActual] = true;
+            }else{
+                while(idCaminoActual >= 0 && !visitados[idCaminoActual]){
+                    int distanciaCaminoActual = distancias[idLugarActual] + caminos[idLugarActual][idCaminoActual];
 
-            for(int i=0; i<lugares.size(); i++){
-                if(caminos[idActual][i] != infinito && !visitados[i]){
-                    int distancia = distancias[idActual] + caminos[idActual][i];
+                    if(distanciaCaminoActual < distancias[idCaminoActual]) {
+                        distancias[idCaminoActual] = distanciaCaminoActual;
 
-                    if(distancia < distancias[i]) {
-                        distancias[i] = distancia;
-                        rutas[i] = idActual;
+                        for(int i=0; i<rutas[idCaminoActual].size(); i++){
+                            rutas[idCaminoActual].set(i, rutas[idLugarActual].get(i));
+                        }
+
+                        for(int i=idCaminoActual; i<rutas[idLugarActual].size(); i++){
+                            rutas[idCaminoActual].add(rutas[idLugarActual].get(i));
+                        }
+
+                        rutas[idCaminoActual].add(idLugarActual);
                     }
 
-                    pendientes.offer(i);
+                    visitados[idLugarActual] = true;
+                    idCaminoActual = obtenerCaminoSiguiente(idLugarActual, idCaminoActual);
+
                 }
             }
+
+            idCaminoActual = 0;
+            idLugarActual = obtenerLugarSiguiente(distancias, visitados);
         }
 
-        return rutas;
-    }
-
-    private int[] rutaHacia(int idDestino){
-        int[] rutasDesdeUbicacionActual = rutasDesdeUbicacionActual();
-        int[] rutaInversa = new int[lugares.size()];
-
-        int longitudRuta = 0;
-        int idActual = idDestino;
-
-        while(idActual != -1){
-            rutaInversa[longitudRuta++] = idActual;
-            idActual = rutasDesdeUbicacionActual[idActual];
-        }
-
-        int[] ruta = new int[longitudRuta];
-
-        for(int i=longitudRuta-1; i>=0; i--){
-            ruta[(longitudRuta-1)-i] = rutaInversa[i];
-        }
-
-        return ruta;
-    }
-
-
-
-    private int distanciaHacia(int idDestino){
-        int distancia = 0;
-
-        int[] rutasDesdeUbicacionActual = rutasDesdeUbicacionActual();
-        int[] rutaInversa = new int[lugares.size()];
-
-        int longitudRuta = 0;
-        int idActual = idDestino;
-
-        while(idActual != -1){
-            rutaInversa[longitudRuta++] = idActual;
-            idActual = rutasDesdeUbicacionActual[idActual];
-        }
-
-        for(int i=longitudRuta-2; i>=0; i--){
-            distancia += caminos[idUbicacionActual][rutaInversa[i]];
-        }
-
-        return distancia;
-    }
-
-
-
-    public void imprimir(){
-        Queue<Integer> pendientes = new ArrayDeque<>();
-        List<Integer> impresos = new ArrayList<>();
-
-        pendientes.add(0);
-        
-        while(!pendientes.isEmpty()){
-            int indice = pendientes.poll();
-
-            System.out.print("["+lugares.get(indice).getNombre()+"] -> ");
-            impresos.add(indice);
-
-            for(int i=0; i<lugares.size(); i++){
-                if(caminos[indice][i] != infinito && !impresos.contains(i)){
-                    pendientes.add(i);
-                }
-            }
-        }
-    }
-
-
-
-    public void leer(){
         for(int i=0; i<lugares.size(); i++){
-            for(int o=0; o<lugares.size(); o++){
-                if(caminos[i][o] != infinito){
-                    System.out.print("["+caminos[i][o]+"]");
-                }else{
-                    System.out.print("[in]");
-                }
+            rutas[i].add(i);
+        }
+
+        System.out.println("Iniciar nodo:" + lugares.get(idUbicacionActual).getNombre());
+        for(int i=0; i<lugares.size(); i++){
+            System.out.print(lugares.get(i).getNombre() + "   " + distancias[i] + "   ");
+
+            for(int o=0; o<rutas[i].size(); o++){
+                System.out.print(lugares.get(rutas[i].get(o)).getNombre()+" -> ");
             }
             System.out.println();
         }
+
+    }
+
+
+
+    public int obtenerCaminoSiguiente(int idLugarActual, int idCaminoActual) {
+        for(int i=idCaminoActual+1; i<lugares.size(); i++){
+            System.out.println(idCaminoActual+" "+i);
+            if(idLugarActual >= 0 && caminos[idLugarActual][i] != infinito){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
+
+    public int obtenerLugarSiguiente(int[] distancias, boolean[] visitados) {
+        int j = 0;
+        double mindis = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < distancias.length; i++) {
+            if (!visitados[i]) {
+                if (distancias[i] < mindis) {
+                    mindis = distancias[i];
+                    j = i;
+                }
+            }
+        }
+        return j;
     }
 }

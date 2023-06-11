@@ -66,6 +66,9 @@ public class App {
         mapa.crearCamino(23, 24, 20);
         mapa.crearCamino(23, 28, 80);
 
-        mapa.ir("Lobos mexicanos");
+        //mapa.ir("Lobos mexicanos");
+        //mapa.ir("Lobos mexicanos");
+
+        mapa.dijkStra();
     }
 }
