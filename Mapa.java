@@ -125,10 +125,12 @@ public class Mapa {
                         distancias[idCaminoActual] = distanciaCaminoActual;
 
                         for(int i=0; i<rutas[idCaminoActual].size(); i++){
-                            rutas[idCaminoActual].set(i, rutas[idLugarActual].get(i));
+                            if(i<rutas[idLugarActual].size()){
+                                rutas[idCaminoActual].set(i, rutas[idLugarActual].get(i));
+                            }
                         }
 
-                        for(int i=idCaminoActual; i<rutas[idLugarActual].size(); i++){
+                        for(int i=rutas[idCaminoActual].size(); i<rutas[idLugarActual].size(); i++){
                             rutas[idCaminoActual].add(rutas[idLugarActual].get(i));
                         }
 
