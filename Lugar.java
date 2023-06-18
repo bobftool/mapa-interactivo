@@ -1,24 +1,13 @@
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 
-public class Lugar extends AppController{
+public class Lugar{
     public int numero;
     private String nombre;
     private int coordenadaX;
     private int coordenadaY;
 
     private AnchorPane grafico = new AnchorPane();
-
-    public EventHandler eventHandler = new EventHandler<MouseEvent>(){
-        @Override
-        public void handle(MouseEvent arg0){
-            actualizar(Lugar.this);
-            grafico.setStyle("-fx-background-color: #000000; -fx-border-color: #000000;");
-        }
-    };
-
 
 
     public Lugar(int numero, String nombre, int coordenadaX, int coordenadaY) {
@@ -27,17 +16,19 @@ public class Lugar extends AppController{
         this.coordenadaX = coordenadaX;
         this.coordenadaY = coordenadaY;
 
-        inicializarGrafico(coordenadaX, coordenadaY);
+        graficoInicializar(coordenadaX, coordenadaY);
     }
 
-    private void inicializarGrafico(int coordenadaX, int coordenadaY){
-        grafico.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #000000;");
+    private void graficoInicializar(int coordenadaX, int coordenadaY){
+        grafico.setStyle("-fx-background-radius: 25px; -fx-border-radius: 25px; -fx-background-color: #FFFFFF; -fx-border-color: #FFFFFF; -fx-border-width: 3;");
         grafico.setPrefSize(20, 20);
-        grafico.setLayoutX(coordenadaX);
-        grafico.setLayoutY(coordenadaY);
+        grafico.setLayoutX(coordenadaX-10);
+        grafico.setLayoutY(coordenadaY-10);
         grafico.getChildren().add(new Text(String.valueOf(numero)));
+    }
 
-        grafico.onMouseClickedProperty().set(eventHandler);
+    public void graficoCambiarColor(String color){
+        grafico.setStyle("-fx-background-radius: 25px; -fx-border-radius: 25px; -fx-background-color: "+color+"; -fx-border-color: #FFFFFF; -fx-border-width: 3;");
     }
 
 

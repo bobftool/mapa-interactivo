@@ -5,21 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
 public class AppController{
-    public static Mapa mapa = new Mapa();
-
-    public void actualizar(Lugar lugar){
-        for(int i=0; i<mapa.getGrafico().getChildren().size(); i++){
-            mapa.getGrafico().getChildren().get(i).setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #000000;");
-
-            if(i == 0){
-                mapa.getGrafico().getChildren().get(i).setStyle("-fx-background-color: #30aee9; -fx-border-color: #000000;");
-            }
-        }
-        
-        System.out.println("["+lugar.getNombre()+"]");
-        //System.out.println(mapa.getIdLugar(lugar));
-        mapa.distancia(lugar);
-    }
+    public Mapa mapa = new Mapa();
 
     @FXML
     private ResourceBundle resources;
@@ -31,26 +17,6 @@ public class AppController{
 
     @FXML
     public void initialize() {
-        /*
-        System.out.println("pene");
-        AnchorPane pane1 = new AnchorPane();
-        EventHandler eventHandler = new EventHandler<MouseEvent>(){
-            @Override
-            public void handle(MouseEvent arg0){
-                System.out.println("XD");
-            }
-        };
-
-        pane1.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #000000;");
-        pane1.setPrefSize(20, 20);
-        pane1.setLayoutX(200);
-        pane1.setLayoutY(200);
-
-        pane1.onMouseClickedProperty().set(eventHandler);
-
-        mapa.getChildren().add(pane1);
-        */
-
         mapa.agregarLugar("Entrada", 475, 230); //0
         mapa.agregarLugar("Alimentos", 275, 220); //1
         mapa.agregarLugar("Hipopótamos", 160, 90); //2
@@ -115,6 +81,7 @@ public class AppController{
         mapa.crearCamino(22, 23);
         mapa.crearCamino(22, 27);
 
+        mapa.graficoActualizar();
         container.getChildren().add(mapa.getGrafico());
     }
 }

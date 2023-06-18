@@ -1,25 +1,53 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Line;
 
 public class Mapa{
     private final int infinito = Integer.MAX_VALUE;
     private List<Lugar> lugares = new ArrayList<Lugar>();
     private int[][] caminos;
-    private int idUbicacionActual;
+    private int idUbicacion;
+    private int idSeleccionado;
 
     private AnchorPane grafico = new AnchorPane();
+    private AnchorPane graficoFondo = new AnchorPane();
+    private AnchorPane graficoRutas = new AnchorPane();
+    private AnchorPane graficoLugares = new AnchorPane();
 
     public Mapa(){
-        idUbicacionActual = 0;
+        idUbicacion = 0;
 
-        inicializarGrafico();
+        graficoInicializar();
     }
 
-    private void inicializarGrafico(){
+    private void graficoInicializar(){
         grafico.setPrefSize(500, 500);
-        grafico.setStyle("-fx-background-color: #49c546;");
+        grafico.setStyle("-fx-background-color: #4ca848;");
+        grafico.getChildren().add(graficoFondo);
+        grafico.getChildren().add(graficoRutas);
+        grafico.getChildren().add(graficoLugares);
+    }
+
+    public void graficoActualizar(){
+        graficoLugares.getChildren().clear();
+
+        for(int i=0; i<lugares.size(); i++){
+            graficoLugares.getChildren().add(lugares.get(i).getGrafico());
+        }
+    }
+
+    public void graficoLimpiar(){
+        graficoRutas.getChildren().clear();
+
+        for(int i=0; i<lugares.size(); i++){
+            lugares.get(i).graficoCambiarColor("#FFFFFF");
+        }
+
+        lugares.get(idUbicacion).graficoCambiarColor("#30aee9");
     }
 
     
@@ -59,9 +87,37 @@ public class Mapa{
 
 
 
+    public void actualizarUbicacion(int idActual){
+        lugares.get(idUbicacion).graficoCambiarColor("#000000");
+
+        idUbicacion = idActual;
+        
+        lugares.get(idUbicacion).graficoCambiarColor("#30aee9");
+    }
+
+
+
     public void agregarLugar(String nombre, int coordenadaX, int coordenadaY){
-        lugares.add(new Lugar(lugares.size()+1,nombre, coordenadaX, coordenadaY));
-        grafico.getChildren().add(lugares.get(lugares.size()-1).getGrafico());
+        lugares.add(new Lugar(lugares.size()+1, nombre, coordenadaX, coordenadaY));
+        
+        int idActual = lugares.size()-1;
+
+        lugares.get(idActual).getGrafico().setOnMouseClicked(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent arg0){
+                graficoLimpiar();
+                ruta(idActual);
+                lugares.get(idActual).graficoCambiarColor("#ff143f");
+                graficoActualizar();
+
+                idSeleccionado = idActual;
+            }
+        });
+
+        if(lugares.size() == 1){
+            actualizarUbicacion(0);
+        }
+
         actualizarCaminos();
     }
 
@@ -88,48 +144,22 @@ public class Mapa{
 
 
 
-    public void crearCamino(String lugarA, String lugarB, int distancia){
-        int idLugarA = getIdLugar(lugarA);
-        int idLugarB = getIdLugar(lugarB);
-
-        if(idLugarA >= 0 && idLugarB >= 0){
-            caminos[idLugarA][idLugarB] = distancia;
-            caminos[idLugarB][idLugarA] = distancia;
-        }else{
-            System.out.println("No se pudo crear el camino entre "+lugarA+" y "+lugarB+".");
-        }
-    }
-
-
-
     public void crearCamino(int idLugarA, int idLugarB){
-        int distanciaX = getLugar(idLugarA).getCoordenadaX() - getLugar(idLugarB).getCoordenadaX();
-        int distanciaY = getLugar(idLugarA).getCoordenadaY() - getLugar(idLugarB).getCoordenadaY();
-        int distancia = (int)Math.sqrt(Math.pow(distanciaX, 2) + Math.pow(distanciaY, 2));
-
         if(idLugarA >= 0 && idLugarB >= 0 && idLugarA < lugares.size() && idLugarB < lugares.size()){
+            int distanciaX = getLugar(idLugarA).getCoordenadaX() - getLugar(idLugarB).getCoordenadaX();
+            int distanciaY = getLugar(idLugarA).getCoordenadaY() - getLugar(idLugarB).getCoordenadaY();
+            int distancia = (int)Math.sqrt(Math.pow(distanciaX, 2) + Math.pow(distanciaY, 2));
+            
             caminos[idLugarA][idLugarB] = distancia;
             caminos[idLugarB][idLugarA] = distancia;
+
+            Line linea = new Line(getLugar(idLugarA).getCoordenadaX(), getLugar(idLugarA).getCoordenadaY(), getLugar(idLugarB).getCoordenadaX(), getLugar(idLugarB).getCoordenadaY());
+
+            linea.setStyle("-fx-stroke-width: 15; -fx-stroke: #72c76f;");
+
+            graficoFondo.getChildren().add(linea);
         }else{
             System.out.println("No se pudo crear el camino entre "+idLugarA+" y "+idLugarB+".");
-        }
-    }
-
-
-
-    public void crearCamino(String lugarA, String lugarB){
-        int idLugarA = getIdLugar(lugarA);
-        int idLugarB = getIdLugar(lugarB);
-
-        int distanciaX = getLugar(idLugarA).getCoordenadaX() - getLugar(idLugarB).getCoordenadaX();
-        int distanciaY = getLugar(idLugarA).getCoordenadaY() - getLugar(idLugarB).getCoordenadaY();
-        int distancia = (int)Math.sqrt(Math.pow(distanciaX, 2) + Math.pow(distanciaY, 2));
-
-        if(idLugarA >= 0 && idLugarB >= 0){
-            caminos[idLugarA][idLugarB] = distancia;
-            caminos[idLugarB][idLugarA] = distancia;
-        }else{
-            System.out.println("No se pudo crear el camino entre "+lugarA+" y "+lugarB+".");
         }
     }
 
@@ -146,28 +176,6 @@ public class Mapa{
 
 
 
-    public void ir(Lugar destino){
-        List<Integer> ruta = rutas()[getIdLugar(destino)];
-
-        for(int i=0; i<ruta.size(); i++){
-            System.out.print("["+lugares.get(ruta.get(i)).getNombre()+"] -> ");
-        }
-        System.out.println();
-
-        idUbicacionActual = getIdLugar(destino);
-    }
-
-    public void ir(String destino){
-        List<Integer> ruta = rutas()[getIdLugar(destino)];
-
-        for(int i=0; i<ruta.size(); i++){
-            System.out.print("["+lugares.get(ruta.get(i)).getNombre()+"] -> ");
-        }
-        System.out.println();
-
-        idUbicacionActual = getIdLugar(destino);
-    }
-
     public void ir(int idDestino){
         List<Integer> ruta = rutas()[idDestino];
 
@@ -176,40 +184,12 @@ public class Mapa{
         }
         System.out.println();
 
-        idUbicacionActual = idDestino;
-    }
-
-
-
-    public void distancia(Lugar destino){
-        List<Integer> ruta = rutas()[getIdLugar(destino)];
-        int idActual = idUbicacionActual;
-        int distancia = 0;
-
-        for(int i=1; i<ruta.size(); i++){
-            distancia += caminos[idActual][ruta.get(i)];
-            idActual = ruta.get(i);
-        }
-
-        System.out.println(distancia);
-    }
-
-    public void distancia(String destino){
-        List<Integer> ruta = rutas()[getIdLugar(destino)];
-        int idActual = idUbicacionActual;
-        int distancia = 0;
-
-        for(int i=1; i<ruta.size(); i++){
-            distancia += caminos[idActual][ruta.get(i)];
-            idActual = ruta.get(i);
-        }
-
-        System.out.println(distancia);
+        actualizarUbicacion(idDestino);
     }
 
     public void distancia(int idDestino){
         List<Integer> ruta = rutas()[idDestino];
-        int idActual = idUbicacionActual;
+        int idActual = idUbicacion;
         int distancia = 0;
 
         for(int i=1; i<ruta.size(); i++){
@@ -219,6 +199,20 @@ public class Mapa{
         }
 
         System.out.println(distancia);
+    }
+
+    public void ruta(int idDestino){
+        List<Integer> ruta = rutas()[idDestino];
+
+        for(int i=1; i<ruta.size(); i++){
+            lugares.get(ruta.get(i)).graficoCambiarColor("#999999");
+
+            Line linea = new Line(getLugar(ruta.get(i-1)).getCoordenadaX(), getLugar(ruta.get(i-1)).getCoordenadaY(), getLugar(ruta.get(i)).getCoordenadaX(), getLugar(ruta.get(i)).getCoordenadaY());
+
+            linea.setStyle("-fx-stroke-width: 10; -fx-stroke: #999999;");
+
+            graficoRutas.getChildren().add(linea);
+        }
     }
 
 
@@ -234,9 +228,9 @@ public class Mapa{
         }
 
         int idCaminoActual = 0;
-        int idLugarActual = idUbicacionActual;
+        int idLugarActual = idUbicacion;
 
-        distancias[idUbicacionActual] = 0;
+        distancias[idUbicacion] = 0;
 
         while(!visitados[idLugarActual]){
             idCaminoActual = obtenerCaminoSiguiente(idLugarActual, idCaminoActual-1);
@@ -282,18 +276,6 @@ public class Mapa{
         for(int i=0; i<lugares.size(); i++){
             rutas[i].add(i);
         }
-
-        /*
-        System.out.println("Iniciar nodo:" + lugares.get(idUbicacionActual).getNombre());
-        for(int i=0; i<lugares.size(); i++){
-            System.out.print(lugares.get(i).getNombre() + "   " + distancias[i] + "   ");
-
-            for(int o=0; o<rutas[i].size(); o++){
-                System.out.print(lugares.get(rutas[i].get(o)).getNombre()+" -> ");
-            }
-            System.out.println();
-        }
-        */
 
         return rutas;
     }
