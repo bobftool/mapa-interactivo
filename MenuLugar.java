@@ -5,6 +5,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+/**
+ * Esta clase crea el menu con la informacion del lugar.
+ */
 public class MenuLugar{
     private VBox grafico = new VBox();
     private VBox informacion = new VBox();
@@ -16,6 +19,9 @@ public class MenuLugar{
     private AnchorPane boton = new AnchorPane();
     private Text textoBoton = new Text();
 
+    /**
+     * Resive la informacion y la muestra graficamente.
+     */
     public MenuLugar(){
         informacion.getChildren().add(titulo);
         informacion.getChildren().add(descripcion);

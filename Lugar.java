@@ -3,6 +3,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 
+
+/**
+ * La clase lugar controla la informacion de las personas, las atracciones y maneja los graficos que le indican al usuario la cantidad de personas que hay en cada atraccion.
+ */
 public class Lugar{
     public String directorio = System.getProperty("user.dir");
     
@@ -20,6 +24,14 @@ public class Lugar{
     private Text textCantidadPersonas = new Text();
 
 
+    /**
+     * Inicialista la parte grafica y logica.
+     * @param numero
+     * @param nombre
+     * @param coordenadaX
+     * @param coordenadaY
+     * 
+     */
     public Lugar(int numero, String nombre, int coordenadaX, int coordenadaY) {
         this.numero = numero;
         this.nombre = nombre;
@@ -30,6 +42,11 @@ public class Lugar{
         graficoListaInicializar();
     }
 
+    /**
+     * Inicializa el grafico y lo coloca en sus cordenadas dentro del grafico.
+     * @param coordenadaX
+     * @param coordenadaY
+     */
     private void graficoInicializar(int coordenadaX, int coordenadaY){
         grafico.setStyle("-fx-background-radius: 25px; -fx-border-radius: 25px; -fx-background-color: #FFFFFF; -fx-border-color: #FFFFFF; -fx-border-width: 3;");
         grafico.setPrefSize(20, 20);
@@ -38,12 +55,18 @@ public class Lugar{
         grafico.getChildren().add(new Text(String.valueOf(numero)));
     }
 
+    /**
+     * Cambia el color del grafico con el codigo HEX que recibe.
+     * @param color
+     */
     public void graficoCambiarColor(String color){
         grafico.setStyle("-fx-background-radius: 25px; -fx-border-radius: 25px; -fx-background-color: "+color+"; -fx-border-color: #FFFFFF; -fx-border-width: 3;");
     }
 
 
-
+    /**
+     *  Inicializa el grafico de la lista.
+     */
     public void graficoListaInicializar(){
         Text numero = new Text();
         Text nombre = new Text();
@@ -73,6 +96,10 @@ public class Lugar{
         graficoLista.getChildren().add(textCantidadPersonas);
     }
 
+    /**
+     * Cambia el color del grafico de la lista con el codigo HEX que recibe.
+     * @param color
+     */
     public void graficoListaCambiarColor(String color){
         graficoLista.setStyle("-fx-background-radius: 0px 25px 25px 0px; -fx-background-color: "+color+";");
     }

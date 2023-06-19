@@ -5,6 +5,19 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
+/*
+ * Autores: 
+ * Alan González Morales 
+ * Alan Olea Garcia
+ * Axel Ivan Rossano Mddina
+ * Mario Alexis Anguiano Juarez
+ * Jose Julian Cruz Laparra
+ * 
+ */
+
+ /*
+  * Esta clase controla la aplicacion, la parte grafica del sistema.
+  */
 public class AppController{
     public String directorio = System.getProperty("user.dir");
     public Mapa mapa = new Mapa();
@@ -19,6 +32,9 @@ public class AppController{
     @FXML
     private AnchorPane container;
 
+    /*
+     * Esta funcion inicializa la parte grafica y crea los lugares del mapa , los caminos y agrega informacion a cada lugar.
+     */
     @FXML
     public void initialize() {
         mapa.agregarLugar("Entrada", 475, 230); //0

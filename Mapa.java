@@ -7,7 +7,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
 
+/*
+ * Esta clase controla la parte logica y grafica del mapa principal, el cual muestra al usuario
+ * todas las atracciones a las que tiene acceso.
+ */
+
 public class Mapa{
+
     private final int infinito = Integer.MAX_VALUE;
     private List<Lugar> lugares = new ArrayList<Lugar>();
     private int[][] caminos;
@@ -170,7 +176,7 @@ public class Mapa{
     }
 
     /**
-     * Crea un objeto Lugar y lo agrega a la lista lugares
+     * Crea un objeto Lugar y su grafico, lo agrega a la lista lugares.
      * @param nombre
      * @param coordenadaX
      * @param coordenadaY
@@ -180,6 +186,10 @@ public class Mapa{
         
         int idActual = lugares.size()-1;
 
+        /*
+         * Esta funcion asigna al boton del menu funcionalidad dependiendo del lugar 
+         * 
+         */
         lugares.get(idActual).getGrafico().setOnMouseClicked(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent arg0){
@@ -217,6 +227,10 @@ public class Mapa{
         actualizarCaminos();
     }
 
+    /*
+     * aumenta el tamaño de la matriz de adyasencia cada vez que se agrega un nuevo lugar a la lsiata 
+     * de lugares.
+     */
     private void actualizarCaminos(){
         int caminosCopia[][] = caminos;
         caminos = new int[lugares.size()][lugares.size()];
@@ -238,8 +252,15 @@ public class Mapa{
         }
     }
 
-
-
+    /**
+     * 
+     * @param idLugarA
+     * @param idLugarB
+     * crea una conexion entre dos lugares de la lista. Apartir de las coordenadas X y Y 
+     * de cada lugar obtiene la distancia con el uso de teorema de pitagoras y se la asigna a la 
+     * matriz de adyacencia.
+     * En el grafico del mapa crea a una linea que conecta a ambos lugares.
+     */
     public void crearCamino(int idLugarA, int idLugarB){
         if(idLugarA >= 0 && idLugarB >= 0 && idLugarA < lugares.size() && idLugarB < lugares.size()){
             int distanciaX = getLugar(idLugarA).getCoordenadaX() - getLugar(idLugarB).getCoordenadaX();
@@ -260,7 +281,7 @@ public class Mapa{
     }
 
 
-
+    
     public void crearCamino(int idLugarA, int idLugarB, int distancia){
         if(idLugarA >= 0 && idLugarB >= 0 && idLugarA < lugares.size() && idLugarB < lugares.size()){
             caminos[idLugarA][idLugarB] = distancia;
@@ -272,6 +293,9 @@ public class Mapa{
 
 
 
+    /*
+     * Llama a la funcion de cambiar ubicacion.
+     */
     public void ir(int idDestino){
         List<Integer> ruta = rutas()[idDestino];
 
@@ -281,6 +305,10 @@ public class Mapa{
         actualizarUbicacion(idDestino);
     }
 
+    /**
+     * Obtiene la ruta al lugaar de destino y suma las distancias de cada lugar recorrido.
+     * @param idDestino
+     */
     public void distancia(int idDestino){
         List<Integer> ruta = rutas()[idDestino];
         int idActual = idUbicacion;
@@ -291,10 +319,12 @@ public class Mapa{
             distancia += caminos[idActual][ruta.get(i)];
             idActual = ruta.get(i);
         }
-
-        System.out.println(distancia);
     }
 
+    /**
+     * Genera graficamente las lineas del recorrido hacia el destino.i
+     * @param idDestino
+     */
     public void ruta(int idDestino){
         List<Integer> ruta = rutas()[idDestino];
 
@@ -310,7 +340,10 @@ public class Mapa{
     }
 
 
-    
+    /**
+     * Genera un arreglo de id de lugares ordenados de menor a mayor cantidad de personas.
+     * @return
+     */
     public int[] ordenarIdLugares(){
         int maximo = 0;
 
@@ -346,7 +379,10 @@ public class Mapa{
     }
 
 
-
+    /**
+     * Utilizamos el algoritmo Dijkstra para obtener el camiono mas corto de una atraccion a otra. 
+     * @return
+     */
     public List<Integer>[] rutas(){
         List<Integer>[] rutas = new ArrayList[lugares.size()];
         int[] distancias = new int[lugares.size()];
