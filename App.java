@@ -12,9 +12,9 @@ public class App extends Application{
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("app.fxml"));
-        Scene scene = new Scene(root, 500, 500);
+        Scene scene = new Scene(root, 950, 500);
 
-        stage.setTitle("Hello World!");
+        stage.setTitle("Zoológico de Chapultepec - Mapa interactivo");
         stage.setScene(scene);
         stage.show();
     }

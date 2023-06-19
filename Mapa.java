@@ -4,6 +4,7 @@ import java.util.List;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
 
 public class Mapa{
@@ -13,26 +14,59 @@ public class Mapa{
     private int idUbicacion;
     private int idSeleccionado;
 
-    private AnchorPane grafico = new AnchorPane();
+    private HBox grafico = new HBox();
+    private AnchorPane graficoMapa = new AnchorPane();
     private AnchorPane graficoFondo = new AnchorPane();
     private AnchorPane graficoRutas = new AnchorPane();
     private AnchorPane graficoLugares = new AnchorPane();
 
+    private MenuLugar menuLugar = new MenuLugar();
+    private MenuLista menuLista = new MenuLista();
+
+    /**
+     * Constructor, el usuario inicia en el primer lugar agregado al mapa.
+     */
     public Mapa(){
         idUbicacion = 0;
-
-        graficoInicializar();
+        idSeleccionado = 0;
     }
 
-    private void graficoInicializar(){
-        grafico.setPrefSize(500, 500);
-        grafico.setStyle("-fx-background-color: #4ca848;");
-        grafico.getChildren().add(graficoFondo);
-        grafico.getChildren().add(graficoRutas);
-        grafico.getChildren().add(graficoLugares);
+    /**
+     * 
+     * @return Gráfico que contiene el mapa y los menús.
+     */
+    public HBox getGrafico() {
+        return grafico;
     }
 
-    public void graficoActualizar(){
+    public void setGrafico(HBox grafico) {
+        this.grafico = grafico;
+    }
+
+    /**
+     * Construye el gráfico del mapa capa a capa.
+     */
+    public void graficoInicializar(){
+        graficoMapa.setPrefSize(500, 500);
+        graficoMapa.setStyle("-fx-background-color: #4ca848;");
+        graficoMapa.getChildren().add(graficoFondo);
+        graficoMapa.getChildren().add(graficoRutas);
+        graficoMapa.getChildren().add(graficoLugares);
+
+        grafico.getChildren().add(graficoMapa);
+        grafico.getChildren().add(menuLugar.getGrafico());
+        grafico.getChildren().add(menuLista.getGrafico());
+
+        graficoLimpiar();
+        graficoActualizarMapa();
+        graficoActualizarMenuLugar();
+        graficoActualizarMenuLista();
+    }
+
+    /**
+     * Actualiza el gráfico de cada lugar del mapa.
+     */
+    public void graficoActualizarMapa(){
         graficoLugares.getChildren().clear();
 
         for(int i=0; i<lugares.size(); i++){
@@ -40,26 +74,63 @@ public class Mapa{
         }
     }
 
+    /**
+     * Actualiza el menú del lugar a la última ubicación seleccionada.
+     */
+    public void graficoActualizarMenuLugar(){
+        menuLugar.setImagen(getLugar(idSeleccionado).getImagen());
+        menuLugar.setTitulo(getLugar(idSeleccionado).getNombre());
+        menuLugar.setDescripcion(getLugar(idSeleccionado).getDescripcion());
+
+        /**
+         * Asigna un EventHandler al botón de acción del menú.
+         */
+        menuLugar.getBoton().setOnMouseClicked(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent arg0){
+                ir(idSeleccionado);
+                graficoLimpiar();
+                graficoActualizarMapa();
+                graficoActualizarMenuLugar();
+                graficoActualizarMenuLista();
+            }
+        });
+    }
+
+    /**
+     * Actualiza el gráfico de cada elemento de la lista.
+     */
+    public void graficoActualizarMenuLista(){
+        int[] idLugares = ordenarIdLugares();
+
+        menuLista.getLista().getChildren().clear();
+
+        for(int i=0; i<lugares.size(); i++){
+            menuLista.getLista().getChildren().add(lugares.get(idLugares[i]).getGraficoLista());
+        }
+    }
+
+
+    /**
+     * Regresa a su estado original todas los gráficos del mapa.
+     */
     public void graficoLimpiar(){
         graficoRutas.getChildren().clear();
 
         for(int i=0; i<lugares.size(); i++){
             lugares.get(i).graficoCambiarColor("#FFFFFF");
+            lugares.get(i).graficoListaCambiarColor("#999999");
         }
 
         lugares.get(idUbicacion).graficoCambiarColor("#30aee9");
+        lugares.get(idUbicacion).graficoListaCambiarColor("#FFFFFF");
     }
 
-    
-
-    public AnchorPane getGrafico() {
-        return grafico;
-    }
-
-    public void setGrafico(AnchorPane grafico) {
-        this.grafico = grafico;
-    }
-
+    /**
+     * 
+     * @param nombre
+     * @return Primer objeto de la lista de lugares que coincida con el nombre
+     */
     public Lugar getLugar(String nombre){
         Lugar lugar = null;
 
@@ -86,17 +157,24 @@ public class Mapa{
     }
 
 
-
+    /**
+     * Actualiza la ubicación del mapa a la última seleccionada
+     * @param idActual
+     */
     public void actualizarUbicacion(int idActual){
-        lugares.get(idUbicacion).graficoCambiarColor("#000000");
+        lugares.get(idUbicacion).graficoCambiarColor("#FFFFFF");
+        lugares.get(idUbicacion).graficoListaCambiarColor("#FFFFFF");
 
         idUbicacion = idActual;
-        
-        lugares.get(idUbicacion).graficoCambiarColor("#30aee9");
+        idSeleccionado = idActual;
     }
 
-
-
+    /**
+     * Crea un objeto Lugar y lo agrega a la lista lugares
+     * @param nombre
+     * @param coordenadaX
+     * @param coordenadaY
+     */
     public void agregarLugar(String nombre, int coordenadaX, int coordenadaY){
         lugares.add(new Lugar(lugares.size()+1, nombre, coordenadaX, coordenadaY));
         
@@ -108,9 +186,27 @@ public class Mapa{
                 graficoLimpiar();
                 ruta(idActual);
                 lugares.get(idActual).graficoCambiarColor("#ff143f");
-                graficoActualizar();
+                lugares.get(idUbicacion).graficoListaCambiarColor("#999999");
+                lugares.get(idActual).graficoListaCambiarColor("#FFFFFF");
+                graficoActualizarMapa();
 
                 idSeleccionado = idActual;
+                graficoActualizarMenuLugar();
+            }
+        });
+
+        lugares.get(idActual).getGraficoLista().setOnMouseClicked(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent arg0){
+                graficoLimpiar();
+                ruta(idActual);
+                lugares.get(idActual).graficoCambiarColor("#ff143f");
+                lugares.get(idUbicacion).graficoListaCambiarColor("#999999");
+                lugares.get(idActual).graficoListaCambiarColor("#FFFFFF");
+                graficoActualizarMapa();
+
+                idSeleccionado = idActual;
+                graficoActualizarMenuLugar();
             }
         });
 
@@ -149,7 +245,7 @@ public class Mapa{
             int distanciaX = getLugar(idLugarA).getCoordenadaX() - getLugar(idLugarB).getCoordenadaX();
             int distanciaY = getLugar(idLugarA).getCoordenadaY() - getLugar(idLugarB).getCoordenadaY();
             int distancia = (int)Math.sqrt(Math.pow(distanciaX, 2) + Math.pow(distanciaY, 2));
-            
+
             caminos[idLugarA][idLugarB] = distancia;
             caminos[idLugarB][idLugarA] = distancia;
 
@@ -180,9 +276,7 @@ public class Mapa{
         List<Integer> ruta = rutas()[idDestino];
 
         for(int i=0; i<ruta.size(); i++){
-            System.out.print("["+lugares.get(ruta.get(i)).getNombre()+"] -> ");
         }
-        System.out.println();
 
         actualizarUbicacion(idDestino);
     }
@@ -213,6 +307,42 @@ public class Mapa{
 
             graficoRutas.getChildren().add(linea);
         }
+    }
+
+
+    
+    public int[] ordenarIdLugares(){
+        int maximo = 0;
+
+        for(int i=0; i<lugares.size(); i++){
+            if(lugares.get(i).getCantidadPersonas()>maximo){
+                maximo = lugares.get(i).getCantidadPersonas();
+            }
+        }
+
+        int cantidadNumeros[] = new int[maximo+1];
+
+        for(int i=0; i<lugares.size(); i++){
+            cantidadNumeros[lugares.get(i).getCantidadPersonas()]++;
+        }
+
+        for(int i=1; i<cantidadNumeros.length; i++){
+            cantidadNumeros[i]+=cantidadNumeros[i-1];
+        }
+
+        int numerosDesordenados[] = new int[lugares.size()];
+        int lugaresOrdenados[] = new int[lugares.size()]; 
+
+        for(int i=0; i<lugares.size(); i++){
+            numerosDesordenados[i] = i;
+        }
+
+        for(int i=0; i<lugares.size(); i++){
+            lugaresOrdenados[cantidadNumeros[lugares.get(numerosDesordenados[i]).getCantidadPersonas()]-1] = numerosDesordenados[i];
+            cantidadNumeros[lugares.get(numerosDesordenados[i]).getCantidadPersonas()]--;
+        }
+        
+        return lugaresOrdenados;
     }
 
 
